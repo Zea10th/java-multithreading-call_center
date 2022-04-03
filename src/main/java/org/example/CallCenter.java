@@ -1,27 +1,14 @@
 package org.example;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 public class CallCenter implements Runnable {
-    private ConcurrentLinkedQueue<Client> queue;
+    private ClientQueue queue;
     private final int clientDB;
     private final int delay;
 
-    public CallCenter() {
-        this.queue = new ConcurrentLinkedQueue<>();
+    public CallCenter(ClientQueue queue) {
+        this.queue = queue;
         this.clientDB = Client.DB_SIZE;
         this.delay = Client.DELAY;
-    }
-
-    public void meetClient() {
-        if(!queue.isEmpty()) {
-            queue.remove();
-            System.out.println("Клиенту ответили. Очередь ожидания : " + getQueueSize() + " клиент(ов).");
-        }
-    }
-
-    public int getQueueSize() {
-        return queue.size();
     }
 
     @Override
@@ -32,12 +19,11 @@ public class CallCenter implements Runnable {
 
             try {
                 Thread.sleep(delay);
+                queue.putClientInQueue();
+                System.out.println("У нас новый клиент! Очередь ожидания : " + queue.getClientQueueSize() + " клиент(ов).");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-            queue.add(new Client());
-            System.out.println("У нас новый клиент! Очередь ожидания : " + getQueueSize() + " клиент(ов).");
         }
     }
 }
